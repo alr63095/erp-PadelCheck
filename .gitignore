@@ -127,3 +127,8 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+parameters_8000.py
+applications/piano/databases/
+applications/admin/sessions/
+applications/piano/private/appconfig.ini
+httpserver.pid
