@@ -1,0 +1,257 @@
+{{extend 'layout.html'}}
+
+{{block head}}
+
+<link href="{{=URL('static', 'adminlte/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css')}}" rel='stylesheet'/>
+<link rel="stylesheet" href="{{=URL('static', 'adminlte/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css')}}">
+<link rel="stylesheet" href="{{=URL('static', 'adminlte/plugins/datatables-responsive/css/responsive.bootstrap4.min.css')}}">
+<link rel="stylesheet" href="{{=URL('static', 'adminlte/plugins/datatables-buttons/css/buttons.bootstrap4.min.css')}}">
+<script src="{{=URL('static', 'adminlte/plugins/datatables/jquery.dataTables.min.js')}}"></script>
+<script src="{{=URL('static', 'adminlte/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js')}}"></script>
+<script src="{{=URL('static', 'adminlte/plugins/datatables-responsive/js/dataTables.responsive.min.js')}}"></script>
+<script src="{{=URL('static', 'adminlte/plugins/datatables-responsive/js/responsive.bootstrap4.min.js')}}"></script>
+<script src="{{=URL('static', 'adminlte/plugins/datatables-buttons/js/dataTables.buttons.min.js')}}"></script>
+<script src="{{=URL('static', 'adminlte/plugins/datatables-buttons/js/buttons.bootstrap4.min.js')}}"></script>
+<script src="{{=URL('static', 'adminlte/plugins/jszip/jszip.min.js')}}"></script>
+<script src="{{=URL('static', 'adminlte/plugins/pdfmake/pdfmake.min.js')}}"></script>
+<script src="{{=URL('static', 'adminlte/plugins/pdfmake/vfs_fonts.js')}}"></script>
+<script src="{{=URL('static', 'adminlte/plugins/datatables-buttons/js/buttons.html5.min.js')}}"></script>
+<script src="{{=URL('static', 'adminlte/plugins/datatables-buttons/js/buttons.print.min.js')}}"></script>
+<script src="{{=URL('static', 'adminlte/plugins/datatables-buttons/js/buttons.colVis.min.js')}}"></script>
+<script src="{{=URL('static', 'adminlte/plugins/moment/moment.min.js')}}"></script>
+<script src="{{=URL('static', 'adminlte/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js')}}"></script>
+{{end}}
+<style>
+    .pad{
+      padding-top: 5px;
+      padding-bottom: 5px;
+  }
+</style>
+
+<body>
+    <div class="card mx-auto" style="width: 80%;padding: 5px;">
+        <h5 class="card-header header-grey" style="padding-left: 20px !important">{{=T('Details')}}</h5>
+        <div class="card-body">
+          <div class="row">
+            <div class="col" style="margin-right: 20px;">
+                <div class="border-bottom pad"><strong>ID AMDOCS</strong><span class='float-right' id='idamdocs'></span></div>  
+                <div class="border-bottom pad"><strong>{{=T('Title')}}</strong><span class='float-right' id='name'></span></div>
+                <div class="pad"><strong>{{=T('Description')}}</strong></div>
+                <textarea rows="11" style="width: 100%;" id='description' disabled></textarea>
+              
+            </div>
+            <div class="col">
+              <div class="border-bottom pad"><strong>{{=T('Alert')}}</strong><span class='float-right' id='alert'></span></div>
+              <div class="border-bottom pad"><strong>{{=T('Pool smart')}}</strong><span class='float-right' id='poolsmart'></span></div>
+              <div class="border-bottom pad"><strong>{{=T('Impact code')}}</strong><span class='float-right' id='impactcode'></span></div>
+              <div class="border-bottom pad"><strong>{{=T('Urgency')}}</strong><span class='float-right' id='urgency'></span></div>
+              <div class="border-bottom pad"><strong>{{=T('Incident Site')}}</strong><span class='float-right' id='incidentsite'></span></div>
+              <div class="border-bottom pad"><strong>{{=T('Discovered')}}</strong><span class='float-right' id='discovered'></span></div>
+              <div class="border-bottom pad"><strong>{{=T('Status')}}</strong><span class='float-right' id='status'></span></div>
+              <div class="border-bottom pad"><strong>{{=T('Severity')}}</strong><span class='float-right' id='severity'></span></div>
+              <div class="border-bottom pad"><strong>{{=T('Category')}}</strong><span class='float-right' id='category'></span></div>
+              <div class="border-bottom pad"><strong>{{=T('Categorization')}}</strong><span class='float-right' id='categorization'></span></div>
+              <div class="pad"><strong>{{=T('Attachment')}}</strong><div class='float-right' id='attachment'></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    <div class="card mx-auto" style="width: 80%;padding: 5px;">
+        <div class="card-header" style="margin-left: 20px;">
+            <button type="button" id="newCommentbtn" onclick="javascript:newComment()" class="btn btn-primary float-left mt-3">{{=T('New Comment/Attachment')}}</button>
+            <button type="button" id="saveCommentbtn" style="display: none;" onclick="javascript:addComment()" class="btn btn-primary float-left mt-3 ">{{=T('Save Comment')}}</button>
+            <button type="button" id="cancelCommentbtn" style="display: none; margin-left: 1%;" onclick="javascript:cancelComment()" class="btn btn-primary float-left mt-3 ">{{=T('Cancel')}}</button>
+            <textarea class="mt-3" id="addComment" rows="2" style="width: 100%;display: none;" ></textarea>
+            <input type="file" id="newFilebtn" style="display: none;" class="btn btn-primary float-left mt-3"></input>
+        </div>
+        <div class="card-body">
+             <table id="datatablelog" class="table table-hover" style="width:100%">
+                <thead class="header-grey">
+                    <tr>
+                        <th>{{=T('Date')}}</th> 
+                        <th>{{=T('User')}}</th> 
+                        <th>{{=T('Comment')}}</th> 
+                        <th>{{=T('Attachment')}}</th> 
+                        <th>{{=T('')}}</th> 
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+    <div class="mx-auto padding-top" style="max-width: 80%;padding-top: 2%;">
+        <button type="button" class="btn btn-secondary" onclick="window.location.href='javascript:history.back()'">{{=T('Back')}}</button>
+    </div>
+    <div id="modalInfoTicket" class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-xl" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">{{=T('Comment')}}</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+                <div class="card">
+                  <h5 class="card-header">{{=T('Worklog')}}</h5>
+                  <div class="card-body">
+                    <textarea id="worklog" rows="8" style="width: 100%;" disabled></textarea>
+                  </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    <script type="text/javascript">
+        var table;
+        var comments;
+        $("#pantalla").text("{{=T('Ticket Details')}}")
+        function newComment(){
+            $('#addComment').show()
+            $('#newCommentbtn').hide()
+            $('#saveCommentbtn').show()
+            $('#cancelCommentbtn').show()
+            $('#newFilebtn').show()
+        }
+        function cancelComment(){
+            $('#addComment').hide()
+            $('#addComment').val("")
+            $('#newCommentbtn').show()
+            $('#saveCommentbtn').hide()
+            $('#cancelCommentbtn').hide()
+            $('#newFilebtn').val("")
+            $('#newFilebtn').hide()
+        }
+        var ticket; 
+        $(document).ready(function(){
+            ticket = {{=ticket}};
+            comments ={{=results}};
+            loadTicketDetails(ticket);
+            table = $("#datatablelog").DataTable({
+                "responsive": true,
+                "order":[[0,"desc"]],
+                data:  comments,
+                columns: [
+                    { data: 'date'},
+                    { data: 'user' },
+                    { data: 'comment',render:function(data){
+                        if(data.length > 40){
+                            return data.substr(0,40)+"..."
+                        }else return data
+                        
+                    }},
+                    { data: 'attachment', render: function(data, type, row) {
+                      if (data == undefined) row['attachment'] =  '{{=T("No attachment")}}'
+                      if (data && data != '{{=T("No attachment")}}') return  '<a download="'+data['filename']+'" href="data:'+data['type']+';base64,'+data['content']+'">'+data['filename']+'</a>';
+                      else return '{{=T("No attachment")}}'
+                    }},
+                    { "defaultContent": '<button class="btn btn-primary btn-sm">{{=T("Full Comment")}}</button>'}, 
+                ]
+              })
+            $('#datatablelog tbody').on('click', 'button', function (e) {
+                e.preventDefault();
+                var data = table.row( this ).data();
+                if (jQuery.isEmptyObject(data)) {
+                  var tr = $(this).closest('tr');
+                  var data = table.row( tr ).data();
+                }
+                if (data) {
+                    $('#worklog').val(data.comment) 
+                    $("#modalInfoTicket").modal("show")
+                }
+            })
+            $('#modalInfoTicket').on('hidden.bs.modal', function () {
+                cancelComment()
+            })
+            function loadTicketDetails(data){
+                $('#idamdocs').text(data.id_amdocs) 
+                $('#name').text(data.name) 
+                $('#description').text(data.description) 
+                $('#severity').text(data.severity) 
+                $('#category').text(data.category) 
+                $('#categorization').text(data.categorization) 
+                $('#alert').text(data.alert_request_ind) 
+                $('#poolsmart').text(data.pool_smart) 
+                $('#impactcode').text(data.impact_code) 
+                $('#urgency').text(data.urgency) 
+                $('#incidentsite').text(data.incident_site) 
+                $('#discovered').text(data.f_discovered)
+                $('#status').text(data.status)
+                if (data.attachment) $('#attachment').html('<a download="'+data.attachment['filename']+'" href="data:'+data.attachment['type']+';base64,'+data.attachment['content']+'">'+data.attachment['filename']+'</a>');
+                else $('#attachment').html("{{=T('No attachment')}}")
+                
+                
+            } 
+        });
+
+        function addComment(){
+          var commentText = $('#addComment').val();
+          var isfile = $('#newFilebtn').val();
+          var attachment = {};
+          if(isfile.length>0){
+            var file    = document.querySelector('input[type=file]').files[0];
+            var reader  = new FileReader();
+            reader.onloadend = function () {
+              attachment['base64'] = window.btoa(reader.result);
+              attachment['type'] = file.type;
+              attachment['name'] = file.name;
+              if (commentText.length <= 0){
+                commentText = 'Envio de Adjunto: "'+attachment['name']+'"'
+              }
+              debugger
+              $.ajax({
+              type: "POST",
+              url: '/piano/default/modifyTir',
+              data: {
+                  comment: commentText,
+                  id_amdocs:ticket.id_amdocs,
+                  id_ticket:ticket.id,
+                  user_act:ticket.user_act,
+                  attachment:JSON.stringify(attachment)
+              },
+              success:  function(response){
+                  cancelComment();
+                  debugger
+                  jsonParseado = JSON.parse(response)
+                  comments = jsonParseado;
+                  table.clear();
+                  table.rows.add(comments).draw()
+                  
+                  }
+              });
+            }
+            if (file) {
+              return reader.readAsBinaryString(file);
+            }
+          }else{
+            if(commentText.length > 0){
+              debugger
+              $.ajax({
+              type: "POST",
+              url: '/piano/default/modifyTir',
+              data: {
+                  comment: commentText,
+                  id_amdocs:ticket.id_amdocs,
+                  id_ticket:ticket.id,
+                  user_act:ticket.user_act,
+                  attachment:attachment
+              },
+              success:  function(response){
+                  cancelComment();
+                  debugger
+                  jsonParseado = JSON.parse(response)
+                  comments = jsonParseado;
+                  table.clear();
+                  table.rows.add(comments).draw()
+                  }
+              });
+            }else{
+              showAlert("No se ha añadido comentario ni adjunto","error")
+            }
+          }
+        
+      }
+    </script>
+</body>
