@@ -199,7 +199,7 @@
 'Login disabled by administrator': 'Inicio de sesión deshabilitado por el administrador',
 'Logout': 'Cerrar sesión',
 'Lost Password': 'Contraseña perdida',
-'Lost your password?': 'Lost your password?',
+'Lost your password?': '¿Has olvidado la contraseña?',
 'Manage %(action)s': 'Gestionar %(action)s',
 'Manage Access Control': 'Gestionar control de acceso',
 'Manage Cache': 'Gestionar la Caché',

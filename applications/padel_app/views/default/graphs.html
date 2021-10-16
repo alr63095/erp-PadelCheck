@@ -1,0 +1,201 @@
+{{extend 'layout.html'}}
+
+{{block head}}
+<link href="{{=URL('static', 'dc/dc.css')}}" rel='stylesheet' />
+<script src="{{=URL('static', 'dc/d3.js')}}"></script>
+<script src="{{=URL('static', 'dc/crossfilter.js')}}"></script>
+<script src="{{=URL('static', 'dc/dc.js')}}"></script>
+<script src="{{=URL('static', 'adminlte/plugins/datatables/jquery.dataTables.min.js')}}"></script>
+
+<link href="{{=URL('static', 'adminlte/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css')}}" rel='stylesheet'/>
+<link rel="stylesheet" href="{{=URL('static', 'adminlte/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css')}}">
+<link rel="stylesheet" href="{{=URL('static', 'adminlte/plugins/datatables-responsive/css/responsive.bootstrap4.min.css')}}">
+<link rel="stylesheet" href="{{=URL('static', 'adminlte/plugins/datatables-buttons/css/buttons.bootstrap4.min.css')}}">
+<script src="{{=URL('static', 'adminlte/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js')}}"></script>
+<script src="{{=URL('static', 'adminlte/plugins/datatables-responsive/js/dataTables.responsive.min.js')}}"></script>
+<script src="{{=URL('static', 'adminlte/plugins/datatables-responsive/js/responsive.bootstrap4.min.js')}}"></script>
+<script src="{{=URL('static', 'adminlte/plugins/datatables-buttons/js/dataTables.buttons.min.js')}}"></script>
+<script src="{{=URL('static', 'adminlte/plugins/datatables-buttons/js/buttons.bootstrap4.min.js')}}"></script>
+<script src="{{=URL('static', 'adminlte/plugins/jszip/jszip.min.js')}}"></script>
+<script src="{{=URL('static', 'adminlte/plugins/pdfmake/pdfmake.min.js')}}"></script>
+<script src="{{=URL('static', 'adminlte/plugins/pdfmake/vfs_fonts.js')}}"></script>
+<script src="{{=URL('static', 'adminlte/plugins/datatables-buttons/js/buttons.html5.min.js')}}"></script>
+<script src="{{=URL('static', 'adminlte/plugins/datatables-buttons/js/buttons.print.min.js')}}"></script>
+<script src="{{=URL('static', 'adminlte/plugins/datatables-buttons/js/buttons.colVis.min.js')}}"></script>
+<script src="{{=URL('static', 'adminlte/plugins/moment/moment.min.js')}}"></script>
+<script src="{{=URL('static', 'adminlte/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js')}}"></script>
+<script src="{{=URL('static','js/dashboard.js')}}"></script>
+{{end}}
+
+<body>
+    <div class="content">
+        <div class="container-fluid">
+            <div class="row pt-3">
+                <div class="col">
+                    <div class="card-group mx-auto" style="width: 100%;">
+                        <div class="card">
+                            <h3 class="card-title text-center pt-1">{{=T('Category')}}</h3>
+                            <div class="card-body">
+                                <div id="category-chart"></div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <h3 class="card-title text-center pt-1">{{=T('Status')}}</h3>
+                            <div class="card-body">
+                                <div id="status-chart"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row pt-1">
+                <div class="col">
+                    <div class="card" style="width: 100%;">
+                        <div class="card-body">
+                            <div id="line-chart"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">    
+                <div class="card-group mx-auto card-danger" style="padding: 5px;">
+                <table id="datatableEvents" class="table table-hover datatableEvents" style="width:100%;margin: auto;">
+                    <thead>
+                      <tr>
+                          <th>{{=T('User')}}</th>
+                          <th>{{=T('Date')}}</th>
+                          <th>{{=T('Third')}}</th>
+                          <th>{{=T('Browser')}}</th>
+                          <th>IP</th>
+                          <th>{{=T('Event')}}</th> 
+                      </tr>
+                    </thead>
+                  </table>
+                </div>
+                <div class="col-4" style="margin-top: 2%;">
+                    <select id="selUser" onchange="showDevices(this)">
+                        <option value="">-- Seleccionar Usuario --</option>
+                    </select>
+                </div> 
+                <div class="col-4" style="margin-top: 2%;">
+                    <p id="devicesText"></p>
+                </div> 
+            </div>
+            
+            
+        </div>
+        
+    </div>
+
+    <script>
+        var datostabla;
+        var categoryChart =  new dc.pieChart("#category-chart");
+        var statusChart = new dc.pieChart("#status-chart");
+        var terceroChart; // TO-DO
+        var lineChart = new dc.lineChart("#line-chart");
+        var timeFormat = d3.timeFormat('%d/%m/%Y');
+        var data;
+        function initTable(){
+            table=$("#datatableEvents").DataTable({
+                "responsive": true,
+                "order":[[1,"desc"]],
+                data:  datostabla,
+                columns: [
+                    { data: 'user'},
+                    { data: 'fecha' },
+                    { data: 'tercero' },
+                    { data: 'navegador' },
+                    { data: 'ip'},
+                    { data: 'evento' }
+                ]
+                
+            })
+        }
+
+        function selectUsers(datosUsuarios) {
+
+            var ele = document.getElementById('selUser');
+            for (var i = 0; i < datosUsuarios.length; i++) {
+                ele.innerHTML = ele.innerHTML +
+                    '<option value="' + datosUsuarios[i]['devices'] + '">' + datosUsuarios[i]['usuario'] + '</option>';
+            }
+        }
+
+        function showDevices(ele) {
+            var msg = document.getElementById('devicesText');
+            msg.innerHTML = 'Usuario: <b>' + ele.options[ele.selectedIndex].text + '</b> </br>' +
+                'Dispositivos: <b>' + ele.value + '</b>';
+        }
+        $(document).ready(function(){
+            $("#pantalla").text("Dashboard")
+            data = {{=results}};
+            datostabla = {{=events}}
+            datosUsuarios = {{=users}}
+            selectUsers(datosUsuarios);
+            initTable();
+            data.forEach(function(x) {
+                x.f_creation = new Date(x.f_creation);
+            });
+            var ndx = crossfilter(data);
+            var fInicio = d3.min(data, d => d.f_creation);
+            var fFin = d3.max(data, d => d.f_creation);
+            if (fInicio != null && fFin != null){
+                var firstDate = new Date(fInicio);
+                firstDate.setDate(firstDate.getDate()-4)
+                var lastDate = new Date(fFin); 
+                lastDate.setDate(lastDate.getDate()+4)
+            }
+            var categoryDim = ndx.dimension(function(d){ return d.category; });  
+            var categoryGroup = categoryDim.group(); 
+            var statusDim = ndx.dimension(function(d){ return d.status; });  
+            var statusGroup = statusDim.group(); 
+            var dateDim = ndx.dimension(function(d) { return d.f_creation; });
+            var dateGroup = dateDim.group(d3.timeDay);
+
+            categoryChart
+                .width(window.width/12 * 6)
+                .height(200)
+                .slicesCap(9)
+                .externalRadiusPadding(20)
+                .dimension(categoryDim)
+                .group(categoryGroup)
+                .label(function(){ return ''})
+                .legend(dc.legend().legendText(function(d) { return d.name + ': ' + d.data; }).highlightSelected(true))
+                .colors(d3.scaleOrdinal().range(d3.schemeCategory10));
+            
+            statusChart
+                .width(window.width/12 * 6)
+                .height(200)
+                .slicesCap(9)
+                .externalRadiusPadding(20)
+                .dimension(statusDim)
+                .group(statusGroup)
+                .label(function(){ return ''})
+                .legend(dc.legend().legendText(function(d) { return d.name + ': ' + d.data; }).highlightSelected(true))
+                .colors(d3.scaleOrdinal().range(d3.schemeCategory10));
+            
+            lineChart
+                .width(window.width - 100)
+                .height(480)
+                .transitionDuration(700)
+                .margins({top: 30, right: 50, bottom: 25, left: 30})
+                .dimension(dateDim)
+                .group(dateGroup)
+                .mouseZoomable(true)
+                .yAxisPadding("5%")
+                .x(d3.scaleTime().domain([firstDate, lastDate]))
+                .elasticY(true)
+                .renderHorizontalGridLines(true)
+                .renderDataPoints(true)
+                .brushOn(false)
+                .yAxisLabel("")
+                .zoomOutRestrict(true)
+                .title(function(d) { 
+                    return timeFormat(d.key) + ': '+ d.value +' tickets creados'; 
+                })
+
+            dc.renderAll();
+        
+        });
+    </script>
+</body>

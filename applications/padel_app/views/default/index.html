@@ -1,0 +1,337 @@
+{{extend 'layout.html'}}
+
+{{block head}}
+
+<link href="{{=URL('static', 'adminlte/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css')}}" rel='stylesheet'/>
+<link rel="stylesheet" href="{{=URL('static', 'adminlte/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css')}}">
+<link rel="stylesheet" href="{{=URL('static', 'adminlte/plugins/datatables-responsive/css/responsive.bootstrap4.min.css')}}">
+<link rel="stylesheet" href="{{=URL('static', 'adminlte/plugins/datatables-buttons/css/buttons.bootstrap4.min.css')}}">
+<script src="{{=URL('static', 'adminlte/plugins/datatables/jquery.dataTables.min.js')}}"></script>
+<script src="{{=URL('static', 'adminlte/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js')}}"></script>
+<script src="{{=URL('static', 'adminlte/plugins/datatables-responsive/js/dataTables.responsive.min.js')}}"></script>
+<script src="{{=URL('static', 'adminlte/plugins/datatables-responsive/js/responsive.bootstrap4.min.js')}}"></script>
+<script src="{{=URL('static', 'adminlte/plugins/datatables-buttons/js/dataTables.buttons.min.js')}}"></script>
+<script src="{{=URL('static', 'adminlte/plugins/datatables-buttons/js/buttons.bootstrap4.min.js')}}"></script>
+<script src="{{=URL('static', 'adminlte/plugins/jszip/jszip.min.js')}}"></script>
+<script src="{{=URL('static', 'adminlte/plugins/pdfmake/pdfmake.min.js')}}"></script>
+<script src="{{=URL('static', 'adminlte/plugins/pdfmake/vfs_fonts.js')}}"></script>
+<script src="{{=URL('static', 'adminlte/plugins/datatables-buttons/js/buttons.html5.min.js')}}"></script>
+<script src="{{=URL('static', 'adminlte/plugins/datatables-buttons/js/buttons.print.min.js')}}"></script>
+<script src="{{=URL('static', 'adminlte/plugins/datatables-buttons/js/buttons.colVis.min.js')}}"></script>
+<script src="{{=URL('static', 'adminlte/plugins/moment/moment.min.js')}}"></script>
+<script src="{{=URL('static', 'adminlte/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js')}}"></script>
+<script src="{{=URL('static','js/dashboard.js')}}"></script>
+<!-- Finguerprint JS -->
+<script async src="//cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js" onload="initFingerprintJS()"></script>
+{{end}}
+
+
+<body>
+  <div class="content">
+    <div class="container-fluid">
+      <div class="row mx-auto" style="width: 81%;padding: 3px; padding-top: 20px; margin-top:0px;">
+        <div class="col" style="padding-left: 0;">
+          <div class="card mx-auto bg-gradient-success" style="height: 90%;"> 
+            <div class="card-body">
+              <h5 class="card-header"><button class="link-success" style="font-size: 18px;" onclick="summaryFilter('TODOS')"><strong>{{=T('User')}}</strong></h5>
+              <div class="row">
+                <div class="col ">
+                  <p class="card-text pt-1" style="float:left">{{=T('Email')}}</p>
+                </div>
+                <div class="col">
+                  <p class="card-text pt-1" style="float:right" id="usuario"></p>
+                </div>  
+              </div>
+              <div class="row">
+                <div class="col ">
+                  <p class="card-text pt-1" style="float:left">{{=T('Third')}}</p>
+                </div>
+                <div class="col">
+                  <p class="card-text pt-1" style="float:right" id="tercero"></p>
+                </div>  
+              </div>
+            </div>
+          </div>
+          </div>
+        <div class="col">
+        <div class="card mx-auto bg-gradient-warning" style="height: 90%;"> 
+          <div class="card-body" id="openedtickets">
+            <h5 class="card-header"><button class="link-warning" id="btnOpenedTickets" style="font-size: 18px; width: 50%; text-align: left;" onclick="summaryFilter(this)" name="ABIERTO#EN CURSO#PENDIENTE" ><strong>{{=T('Opened Tickets')}}</strong></button><button style="float: right; display: none;" class="link-warning" onclick="summaryFilter(this)" id="btnClearOpenFilter">{{=T('Clear filter')}}</button></h5>
+          </div>
+        </div>
+        </div>
+        <div class="col" style="padding-right: 0;">
+        <div class="card mx-auto bg-gradient-info" id="openedTickets" style="height: 90%;"> 
+          <div class="card-body" id="closedtickets">
+            <h5 class="card-header"><button class="link-info" id="btnClosedTickets" style="font-size: 18px; width: 50%; text-align: left;" onclick="summaryFilter(this)" name="CERRADO#CANCELADO#SOLUCIONADO" ><strong>{{=T('Closed Tickets')}}</strong></button><button style="float: right; display: none" class="link-info" onclick="summaryFilter(this)" id="btnClearCloseFilter">{{=T('Clear filter')}}</button></h5>
+          </div>
+        </div>
+        </div>
+          
+      </div>
+      <div class="row">    
+        <div class="card mx-auto card-danger" style="width: 80%;padding: 5px;">
+        <table id="datatableEvents" class="table table-hover datatableEvents" style="width:100%">
+            <thead>
+              <tr>
+                  <th></th>
+                  <th>ID Amdocs</th>
+                  <th>{{=T('Title')}}</th>
+                  <th>{{=T('Status')}}</th>
+                  <th>{{=T('Category')}}</th>
+                  <th>{{=T('Creation date')}}</th> 
+                  <th>{{=T('Last update')}}</th> 
+                  <th>{{=T('Attachment')}}</th> 
+                  <th>{{=T('Details')}}</th>
+              </tr>
+            </thead>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+    
+  
+  <script>
+    var datos;
+    var table;
+    var currentTicket;
+    var datostabla;
+    var estadoAnterior;
+    var estadoActual;
+    var estadosAbierto = "ABIERTO#EN CURSO#PENDIENTE" ;
+    var estadosCerrado = "CERRADO#CANCELADO#SOLUCIONADO"; 
+    var actualfilter;
+
+    function initTable(){
+      table=$("#datatableEvents").DataTable({
+          "responsive": true,
+          "order": [[ 6, "desc" ]],
+          data:  datostabla,
+          'createdRow': function (row, data, rowIndex) {
+            if ('user' in data){
+              row.setAttribute('data-toggle',"tooltip") 
+              row.setAttribute('data-placement',"left")
+              row.setAttribute('title', data['user'])
+              row.id = data['id']
+            }
+          },
+          columns: [
+              { data: 'status',render(data,type,row){
+                if(data) return ' <a id="btnReload" class="nav-link" href="#" title="Recargar estado"><i class="fas fa-sync-alt"></i></a>'} },
+              { data: 'id_amdocs' },
+              { data: 'name' },
+              { data: 'status'},
+              { data: 'category' },
+              { data: 'f_creation' },
+              { data: 'f_last_update'},
+              { data: 'attachment', render: function(data, type, row) {
+                if (data == undefined) row['attachment'] =  '{{=T("No attachment")}}'
+                if (data && data != '{{=T("No attachment")}}') return  '<a download="'+data['filename']+'" href="data:'+data['type']+';base64,'+data['content']+'">'+data['filename']+'</a>';
+                else return '{{=T("No attachment")}}'
+              } 
+              },
+              { "defaultContent": '<button id="btnDetails" class="btn btn-primary btn-sm">{{=T("Details")}}</button>'},
+          ]
+          
+      })
+    }
+    function reload(ticket,index){
+      $.ajax({
+              type: "POST",
+              url: '/piano/default/reloadTickets',
+              data: {
+                  id_amdocs:ticket['id_amdocs'],
+                  id_user:ticket['user_id']
+              },
+              success:  function(response){
+                var dicResponse = JSON.parse(response); 
+                datostabla = dicResponse['tickets'];
+                table.clear(); 
+                table.rows.add(datostabla).draw()
+                datos = dicResponse['contadores']
+                setCounters();
+                if (actualfilter) summaryFilter(actualfilter);
+              }
+      });
+    }
+    function resetCounters(){
+      var newRows = table.rows().data()
+      for (categorization in datos){
+        datos[categorization]['open'] = 0
+        datos[categorization]['close'] = 0
+      }
+      newRows.each(function(r){
+        if (estadosAbierto.includes(r['status'].toUpperCase())){  
+          datos[r['category']]['open']  += 1  
+        }else if (estadosCerrado.includes(r['status'].toUpperCase())) {
+          datos[r['category']]['close']  += 1
+        }
+      })
+    }
+    function setCounters(){
+      
+      $("#openedtickets").find("div").remove()
+      $("#openedtickets").find("hr").remove()
+      $("#closedtickets").find("div").remove()
+      $("#closedtickets").find("hr").remove()
+      
+      var totalopen = 0;
+      var totalclose = 0;
+         
+      for (categorization in datos){
+        $('#openedtickets').append('<div class="row"><div class="col "><p class="card-text pt-1" style="float:left"><button class="link-warning" name="ABIERTO#EN CURSO#PENDIENTE" id="catOpenTicket" onclick="summaryFilter(this)">'+ categorization+'</button></p></div><div class="col"><p class="card-text pt-1" style="float:right" >'+ datos[categorization]['open']+'</p></div></div>');
+        $('#closedtickets').append('<div class="row"><div class="col "><p class="card-text pt-1" style="float:left"><button class="link-info" name="CERRADO#CANCELADO#SOLUCIONADO" id="catCloseTicket" onclick="summaryFilter(this)">'+ categorization+'</button></p></div><div class="col"><p class="card-text pt-1" style="float:right" >'+ datos[categorization]['close']+'</p></div></div>');
+        totalopen += datos[categorization]['open']
+        totalclose += datos[categorization]['close']
+      }
+      $('#openedtickets').append('<hr>');
+      $('#openedtickets').append('<div class="row"><div class="col "><p class="card-text pt-1" style="float:left">Total</p></div><div class="col"><p class="card-text pt-1" style="float:right" >'+ totalopen +'</p></div>  </div>');
+      $('#closedtickets').append('<hr>');
+      $('#closedtickets').append('<div class="row"><div class="col "><p class="card-text pt-1" style="float:left">Total</p></div><div class="col"><p class="card-text pt-1" style="float:right" >'+ totalclose +'</p></div>  </div>');
+    }
+    function summaryFilter(parameter) {
+      actualfilter = parameter;
+      $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+      });
+      var filas;
+      table.clear();
+      table.rows.add(datostabla).draw();
+      if (parameter.id.includes('Clear')){
+        $('#btnClearOpenFilter').hide();
+        $('#btnClearCloseFilter').hide();
+        resetCounters();
+        setCounters();
+        return;
+      }
+      table=$("#datatableEvents").DataTable()
+          .data()
+          .filter( function ( value, index ) {
+            if (parameter.id  == 'catOpenTicket'){
+              $('#btnClearCloseFilter').hide();
+              $('#btnClearOpenFilter').show();
+              return parameter.name.includes(value["status"].toUpperCase()) && value['category'] == parameter.textContent ? true : false;
+            }
+            else if (parameter.id == 'catCloseTicket'){
+              $('#btnClearOpenFilter').hide();
+              $('#btnClearCloseFilter').show();
+              return parameter.name.includes(value["status"].toUpperCase()) && value['category'] == parameter.textContent ? true : false;
+            }
+            else if (parameter.id == 'btnOpenedTickets'){
+              $('#btnClearCloseFilter').hide();
+              $('#btnClearOpenFilter').show();
+              return parameter.name.includes(value["status"].toUpperCase()) ? true : false;
+            }
+            else if (parameter.id == 'btnClosedTickets'){
+              $('#btnClearOpenFilter').hide();
+              $('#btnClearCloseFilter').show();
+              return parameter.name.includes(value["status"].toUpperCase()) ? true : false;
+            }
+          })
+          .draw(); 
+      filas = table.toArray();
+      table.clear();
+      table.rows.add(filas).draw();
+      table.rows().data().each(function (row) {
+        var tr = $("tr[id=" + row.id + "]")
+        if (tr.length > 0){
+          tr[0]["attributes"]['data-toggle'] = "tooltip"
+          tr[0]["attributes"]['data-toggle'] = "left"
+          tr[0].title = row['user']
+          tr[0].id = String(row['id'])
+        }
+      });
+    }
+    function controlUserEvent(user_act, device_hash){
+      $.ajax({
+              type: "POST",
+              url: '/piano/default/control_user_access',
+              data: {
+                  user_act:user_act,
+                  device_hash:device_hash
+              },
+              success:  function(response){
+                
+              }
+      });
+    }
+    $('#datatableEvents').on( 'page.dt', function (){
+      $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+      });
+    });
+    function initFingerprintJS() {
+    // Initialize an agent at application startup.
+      const fpPromise = FingerprintJS.load();
+
+      // Get the visitor identifier when you need it.
+      fpPromise
+        .then(fp => fp.get())
+        .then(result => {
+          // This is the visitor identifier:
+          const visitorId = result.visitorId;
+          console.log(visitorId);
+          controlUserEvent(user_act,visitorId);
+        });
+    }
+    
+    $(document).ready(function(){
+      
+      user_act = datostabla[0]["user_act"];
+      
+
+      $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+      });
+
+      initTable(); //inicializamos la tabla principal
+
+      var clickopen = document.getElementById('clickopen');
+
+      var totalopen = 0;
+      var totalclose = 0;
+      for (categorization in datos){
+        $('#openedtickets').append('<div class="row"><div class="col "><p class="card-text pt-1" style="float:left"><button class="link-warning" name="ABIERTO#EN CURSO#PENDIENTE" id="catOpenTicket" onclick="summaryFilter(this)">'+ categorization+'</button></p></div><div class="col"><p class="card-text pt-1" style="float:right" >'+ datos[categorization]['open']+'</p></div></div>');
+        $('#closedtickets').append('<div class="row"><div class="col "><p class="card-text pt-1" style="float:left"><button class="link-info" name="CERRADO#CANCELADO#SOLUCIONADO" id="catCloseTicket" onclick="summaryFilter(this)">'+ categorization+'</button></p></div><div class="col"><p class="card-text pt-1" style="float:right" >'+ datos[categorization]['close']+'</p></div></div>');
+        totalopen += datos[categorization]['open']
+        totalclose += datos[categorization]['close']
+      }
+      $('#openedtickets').append('<hr>');
+      $('#openedtickets').append('<div class="row"><div class="col "><p class="card-text pt-1" style="float:left">Total</p></div><div class="col"><p class="card-text pt-1" style="float:right" >'+ totalopen +'</p></div>  </div>');
+      $('#closedtickets').append('<hr>');
+      $('#closedtickets').append('<div class="row"><div class="col "><p class="card-text pt-1" style="float:left">Total</p></div><div class="col"><p class="card-text pt-1" style="float:right" >'+ totalclose +'</p></div>  </div>');
+      $("#usuario").text(resumen['user'])
+      $("#tercero").text(resumen['tercero'])
+      $("#pantalla").text("Tickets")
+      
+
+      $('#datatableEvents tbody').on('click', '#btnDetails', function (e) {
+        e.preventDefault();
+        var data = table.row( this ).data();
+        if (jQuery.isEmptyObject(data)) {
+          var tr = $(this).closest('tr');
+          var data = table.row( tr ).data();
+        }
+        if (data) {
+          currentTicket = data
+          window.location = "{{=URL('default','worklog')}}" + '?id_ticket=' + currentTicket.id + '&user=' + currentTicket.user + '&useract='+ currentTicket.user_act;
+          
+        }
+      });
+      $('#datatableEvents tbody').on('click', '#btnReload', function (e) {
+        e.preventDefault();
+        var data = table.row( this ).data();
+        var index = table.row(this).index();
+        if (jQuery.isEmptyObject(data)) {
+          var tr = $(this).closest('tr');
+          var data = table.row( tr ).data();
+          var index = table.row( tr ).index();
+        }
+        if (data) {
+          reload(data,index)
+        }
+      });
+  });
+  </script>
+</body>

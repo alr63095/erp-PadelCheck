@@ -1,0 +1,41 @@
+{{extend 'layout.html'}}
+
+<body>
+  <div class="content">
+    <div class="container-fluid">
+      <div class="card mx-auto" style="width: 75%;">
+        <h3 class="card-header text-center title-create bg-gradient-success">
+          {{=T('Insertar ticket')}}
+        </h3>
+        <div class="card-body">
+          {{=form}}
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+<script type="text/javascript">
+  $("#pantalla").text("{{=T('Add Tickets')}}")
+  $(function () {
+      var reBuildTR = $('<tr></tr>').append("<th></th>");
+      //update RadioField as your field name
+      $('.radio-ticket').find('td').each(function () {
+          $(reBuildTR).append($(this));
+      })
+      $('.radio-ticket').html("").append(reBuildTR);
+  })
+
+  $(document).ready(function(){
+    data = {{=resultado}};
+    if(data['procesado'] == true){
+      showAlert("Ticket: " + data['resultado']+ " creado correctamente","success");
+    }else if(data['procesado'] == false){
+      showAlert(data['resultado'],"error");
+    }
+    $('.btn-primary').click(function(){
+      showAlert("Creando Ticket","info")
+    });
+  });
+</script>    
+
