@@ -29,10 +29,9 @@ def index():
         la información para crear el resument
         la informacion para crear la tabla de tickets del inicio 
     """
-    tickets = []
-    all_tickets = []
+    usuario = "alejandro"
     resumen = {}
-    resumen["hola"] = "hola"
+    resumen["user_act"] = usuario
     contadorcategory = {}
     contadores_json = json.dumps(contadorcategory, default=str)
     resumen_json = json.dumps(resumen, default=str)

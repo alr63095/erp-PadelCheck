@@ -21,17 +21,14 @@
 <script src="{{=URL('static', 'adminlte/plugins/moment/moment.min.js')}}"></script>
 <script src="{{=URL('static', 'adminlte/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js')}}"></script>
 <script src="{{=URL('static','js/dashboard.js')}}"></script>
-<!-- Finguerprint JS -->
-<script async src="//cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js" onload="initFingerprintJS()"></script>
 {{end}}
-
 
 <body>
   <div class="content">
     <div class="container-fluid">
       <div class="row mx-auto" style="width: 81%;padding: 3px; padding-top: 20px; margin-top:0px;">
         <div class="col" style="padding-left: 0;">
-          <div class="card mx-auto bg-gradient-success" style="height: 90%;"> 
+          <div class="card mx-auto bg-gradient-purple" style="height: 90%;"> 
             <div class="card-body">
               <h5 class="card-header"><button class="link-success" style="font-size: 18px;" onclick="summaryFilter('TODOS')"><strong>{{=T('User')}}</strong></h5>
               <div class="row">
@@ -42,46 +39,30 @@
                   <p class="card-text pt-1" style="float:right" id="usuario"></p>
                 </div>  
               </div>
-              <div class="row">
-                <div class="col ">
-                  <p class="card-text pt-1" style="float:left">{{=T('Third')}}</p>
-                </div>
-                <div class="col">
-                  <p class="card-text pt-1" style="float:right" id="tercero"></p>
-                </div>  
-              </div>
+             
             </div>
           </div>
           </div>
         <div class="col">
-        <div class="card mx-auto bg-gradient-warning" style="height: 90%;"> 
+        <div class="card mx-auto bg-gradient-pink" style="height: 90%;"> 
           <div class="card-body" id="openedtickets">
-            <h5 class="card-header"><button class="link-warning" id="btnOpenedTickets" style="font-size: 18px; width: 50%; text-align: left;" onclick="summaryFilter(this)" name="ABIERTO#EN CURSO#PENDIENTE" ><strong>{{=T('Opened Tickets')}}</strong></button><button style="float: right; display: none;" class="link-warning" onclick="summaryFilter(this)" id="btnClearOpenFilter">{{=T('Clear filter')}}</button></h5>
+            <h5 class="card-header"><button class="link-warning" id="btnOpenedTickets" style="font-size: 18px; width: 50%; text-align: left;color: aliceblue;" onclick="summaryFilter(this)" name="ABIERTO#EN CURSO#PENDIENTE" ><strong>{{=T('Active Booking')}}</strong></button><button style="float: right; display: none;" class="link-warning" onclick="summaryFilter(this)" id="btnClearOpenFilter">{{=T('Clear filter')}}</button></h5>
           </div>
         </div>
         </div>
-        <div class="col" style="padding-right: 0;">
-        <div class="card mx-auto bg-gradient-info" id="openedTickets" style="height: 90%;"> 
-          <div class="card-body" id="closedtickets">
-            <h5 class="card-header"><button class="link-info" id="btnClosedTickets" style="font-size: 18px; width: 50%; text-align: left;" onclick="summaryFilter(this)" name="CERRADO#CANCELADO#SOLUCIONADO" ><strong>{{=T('Closed Tickets')}}</strong></button><button style="float: right; display: none" class="link-info" onclick="summaryFilter(this)" id="btnClearCloseFilter">{{=T('Clear filter')}}</button></h5>
-          </div>
-        </div>
-        </div>
-          
       </div>
-      <div class="row">    
+      <div class="row">   
         <div class="card mx-auto card-danger" style="width: 80%;padding: 5px;">
+        <h3 class="pt-2 pb-2"style="text-align: center;margin: auto;">{{=T('Bookings')}}</h3> 
         <table id="datatableEvents" class="table table-hover datatableEvents" style="width:100%">
             <thead>
               <tr>
                   <th></th>
-                  <th>ID Amdocs</th>
-                  <th>{{=T('Title')}}</th>
-                  <th>{{=T('Status')}}</th>
-                  <th>{{=T('Category')}}</th>
+                  <th>{{=T('Club')}}</th>
+                  <th>{{=T('Date')}}</th>
+                  <th>{{=T('Court')}}</th>
+                  <th>{{=T('Active')}}</th>
                   <th>{{=T('Creation date')}}</th> 
-                  <th>{{=T('Last update')}}</th> 
-                  <th>{{=T('Attachment')}}</th> 
                   <th>{{=T('Details')}}</th>
               </tr>
             </thead>

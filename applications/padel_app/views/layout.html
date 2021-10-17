@@ -110,9 +110,9 @@
       </div>
     </nav>
 <!-- Aside ======================================= -->
-    <aside class="main-sidebar sidebar-dark-primary elevation-4" id="side-bar">
+    <aside class="main-sidebar sidebar-dark-primary elevation-5" id="side-bar">
         <!-- Brand Logo -->
-        <a href="/" class="brand-link">
+        <a href="/padel_app" class="brand-link">
             <img src="{{=URL('static','images/small_icon.png')}}" alt="PADEL" class="brand-image img-circle elevation-3"
                  style="opacity: .8">
             <span class="brand-text font-weight-light">Padel App</span>
@@ -126,8 +126,14 @@
                     data-accordion="false">
                     <li class="nav-item">
                         <a href="{{=URL('default','index')}}" class="nav-link">
-                            <i class="nav-icon fas fa-list"></i>
+                            <i class="nav-icon fas fa-user"></i>
                             <p>{{=T('My Profile')}}</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{=URL('default','clubs')}}" class="nav-link">
+                            <i class="nav-icon fas fa-list"></i>
+                            <p>{{=T('Clubs')}}</p>
                         </a>
                     </li>
 
